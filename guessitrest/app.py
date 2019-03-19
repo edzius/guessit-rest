@@ -14,6 +14,8 @@ from flask_restful import Api, Resource, reqparse
 import guessit
 from guessit.jsonutils import GuessitEncoder
 
+import omdbref
+
 from . import __version__
 
 app = Flask(__name__)
@@ -41,7 +43,7 @@ class GuessIt(Resource):
         parser.add_argument('options', action='store', help='Guessit options', location=location)
         args = parser.parse_args()
 
-        return guessit.guessit(args.filename, args.options)
+        return omdbref.update(guessit.guessit(args.filename, args.options), args.filename)
 
     def get(self):
         return self._impl('args')
