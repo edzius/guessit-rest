@@ -1,5 +1,5 @@
 
-OMDB_LOG_FILE = "omdb.log"
+OMDB_LOG_FILE = "/var/log/omdbref.log"
 
 logfp = None
 
