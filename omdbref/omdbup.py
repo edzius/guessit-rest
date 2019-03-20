@@ -26,17 +26,48 @@ def update(data, name):
     if 'title' not in data:
         omdblog.write("No title found for: %s", name or "None")
         return
+
     title = data['title']
+    kind = None
+    season = None
+    episode = None
+    if 'type' in data:
+        kind = data['type']
+    if 'season' in data:
+        season = data['season']
+    if 'episode' in data:
+        episode = data['episode']
+
+    name = ' '.join([str(title),
+                     str(kind) if kind else '',
+                     str('S%s' % season) if season else '',
+                     str('E%s' % episode) if episode else ''])
 
     odata = None
+    sdata = None
     try:
-        odata = omdbcache.get(title)
+        odata = omdbcache.get(name)
         if not odata:
-            odata = omdb.get(title=title)
-            if verify(odata):
-                omdbcache.set(odata, title)
+            omdblog.write("OMDB fetch new '%s'", name)
+            if kind == 'movie':
+                odata = omdb.get(title=title,media_type='movie')
+            elif kind == 'series' or kind == 'episode':
+                odata = omdb.get(title=title,media_type='series')
             else:
-                omdblog.write("OMDB fetch responded: %s", odata)
+                odata = omdb.get(title=title)
+
+            if not verify(odata):
+                omdblog.write("OMDB fetch '%s' responded: %s", title, odata)
+                return
+
+            if kind == 'episode' and episode:
+                sdata = omdb.get(title=title,season=season,episode=episode)
+                if not verify(sdata):
+                    omdblog.write("OMDB fetch specific '%s' responded: %s", name, sdata)
+                else:
+                    odata['specific'] = sdata
+
+            omdbcache.set(odata, name)
     except Exception as e:
         omdblog.write("OMDB fetch failed: %s" % e)
 

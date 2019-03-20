@@ -62,7 +62,7 @@ def set(data, name):
         return
 
     mid = data['imdb_id']
-    mname = data['title']
+    mname = name or data['title']
 
     if mname in omdb_index:
         return
@@ -83,9 +83,7 @@ def set(data, name):
         omdblog.write("Failed omdb cache index update '%s' (%s): %s", mname, mid, e)
         return
 
-    if name != mname:
-        fp.write("%s=%s" % (mid, name,))
-    fp.write("%s=%s" % (mid, mname,))
+    fp.write("%s=%s\n" % (mid, mname,))
     fp.close()
 
 def convert(data):
