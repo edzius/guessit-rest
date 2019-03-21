@@ -1,10 +1,21 @@
 
 import omdb
-from omdbref import API_KEY
 from omdbref import omdbcache
 from omdbref import omdblog
 
-omdb.set_default('apikey', API_KEY)
+OMDB_KEY = '/etc/omdb/key'
+
+def read_key_config():
+    try:
+        fh = open(OMDB_KEY, 'r')
+    except:
+        return ''
+
+    key = fh.readline() or ''
+    fh.close()
+    return key.strip()
+
+omdb.set_default('apikey', read_key_config())
 
 def verify(data):
     if not data:
@@ -69,7 +80,7 @@ def update(data, name):
 
             omdbcache.set(odata, name)
     except Exception as e:
-        omdblog.write("OMDB fetch failed: %s" % e)
+        omdblog.write("OMDB fetch failed: %s", e)
 
     data["ext"] = odata
     return data
