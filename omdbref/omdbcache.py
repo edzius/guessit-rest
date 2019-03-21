@@ -3,8 +3,8 @@ import os
 import json
 from omdbref import omdblog
 
-OMDB_CACHE_INDEX = "/var/run/omdbref.index"
-OMDB_CACHE_DIR = "/var/run/omdbref-cache"
+OMDB_CACHE_INDEX = "/var/run/omdbref/fetch.index"
+OMDB_CACHE_DIR = "/var/run/omdbref/fetch-cache"
 
 omdb_index = None
 
