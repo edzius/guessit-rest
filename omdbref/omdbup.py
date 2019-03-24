@@ -1,21 +1,28 @@
 
+import os
 import omdb
 from omdbref import omdbcache
 from omdbref import omdblog
 
-OMDB_KEY = '/etc/omdb/key'
-
-def read_key_config():
+def read_key_config(file_name):
     try:
-        fh = open(OMDB_KEY, 'r')
-    except:
+        fh = open(file_name, 'r')
+    except Exception as e:
+        omdblog.log("Cannot read key file '%s': %s", file_name, e)
         return ''
 
     key = fh.readline() or ''
     fh.close()
     return key.strip()
 
-omdb.set_default('apikey', read_key_config())
+def read_key_env(env_name):
+    try:
+        return os.environ[env_name]
+    except Exception as e:
+        omdblog.log("Cannot get key env '%s': %s", env_name, e)
+        return ''
+
+omdb.set_default('apikey', read_key_env('OMDB_KEY') or read_key_config('~/.config/guessit/omdb-key') or read_key_config('/etc/guessit/omdb-key') or '')
 
 def verify(data):
     if not data:
