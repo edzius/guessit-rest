@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.rst')).read()
 
-install_requires = ['flask-cors', 'guessit', 'flask-restful>=0.3.6', 'omdb']
+install_requires = ['omdb', 'guessit', 'flask-restful>=0.3.6', 'flask-cors', 'Flask>=0.3.6']
 if sys.version_info < (2, 7):
     install_requires.extend(['argparse'])
 
