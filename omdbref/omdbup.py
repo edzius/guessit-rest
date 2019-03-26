@@ -39,11 +39,11 @@ def verify(data):
 def update(data, filename):
     if not data or len(data) == 0:
         omdblog.write("No data provided for: %s", filename or "None")
-        return
+        return data
 
     if 'title' not in data:
         omdblog.write("No title found for: %s", filename or "None")
-        return
+        return data
 
     title = data['title']
     kind = None
@@ -76,7 +76,7 @@ def update(data, filename):
 
             if not verify(odata):
                 omdblog.write("OMDB fetch '%s' responded: %s", title, odata)
-                return
+                return data
 
             if kind == 'episode' and episode:
                 sdata = omdb.get(title=title,season=season,episode=episode)
