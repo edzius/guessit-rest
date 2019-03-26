@@ -36,13 +36,13 @@ def verify(data):
 
     return True
 
-def update(data, name):
+def update(data, filename):
     if not data or len(data) == 0:
-        omdblog.write("No data provided for: %s", name or "None")
+        omdblog.write("No data provided for: %s", filename or "None")
         return
 
     if 'title' not in data:
-        omdblog.write("No title found for: %s", name or "None")
+        omdblog.write("No title found for: %s", filename or "None")
         return
 
     title = data['title']
@@ -59,14 +59,14 @@ def update(data, name):
     name = ' '.join([str(title),
                      str(kind) if kind else '',
                      str('S%s' % season) if season else '',
-                     str('E%s' % episode) if episode else ''])
+                     str('E%s' % episode) if episode else '']).strip()
 
     odata = None
     sdata = None
     try:
         odata = omdbcache.get(name)
         if not odata:
-            omdblog.write("OMDB fetch new '%s'", name)
+            omdblog.write("OMDB fetch new '%s'; file: %s", name, filename)
             if kind == 'movie':
                 odata = omdb.get(title=title,media_type='movie')
             elif kind == 'series' or kind == 'episode':
@@ -87,7 +87,7 @@ def update(data, name):
 
             omdbcache.set(odata, name)
     except Exception as e:
-        omdblog.write("OMDB fetch failed: %s", e)
+        omdblog.write("OMDB fetch failed: %s; file: %s", e, filename)
 
     data["ext"] = odata
     return data

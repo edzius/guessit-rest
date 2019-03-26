@@ -35,17 +35,19 @@ def load():
             omdblog.write("Invalid omdb cache index line: %s", line)
             continue
 
-        omdb_index[mname] = mid
+        omdb_index[mname.strip()] = mid.strip()
 
     fp.close()
 
 def get(name):
     load()
 
+    name = name.strip()
     if name not in omdb_index:
+        omdblog.write("Cache get '%s' failed - not in index", name)
         return
 
-    mid = omdb_index[name]
+    mid = omdb_index[name].strip()
 
     init()
     try:
@@ -64,7 +66,10 @@ def set(data, name):
     mid = data['imdb_id']
     mname = name or data['title']
 
+    mid = mid.strip()
+    mname = mname.strip()
     if mname in omdb_index:
+        omdblog.write("Cache set '%s' skipped - already in index", mname)
         return
 
     init()
