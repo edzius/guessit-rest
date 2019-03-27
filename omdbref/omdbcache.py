@@ -40,6 +40,8 @@ def load():
     fp.close()
 
 def get(name):
+    global omdb_index
+
     load()
 
     name = name.strip()
@@ -60,6 +62,8 @@ def get(name):
     return data
 
 def set(data, name):
+    global omdb_index
+
     if not data:
         return
 
@@ -90,6 +94,8 @@ def set(data, name):
 
     fp.write("%s=%s\n" % (mid, mname,))
     fp.close()
+
+    omdb_index[mname] = mid
 
 def convert(data):
     if not data:
