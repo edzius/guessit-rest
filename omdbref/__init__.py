@@ -1,3 +1,3 @@
-from .omdbup import update
+from .omdbup import receive
 
-__all__ = ['update']
+__all__ = ['receive']
