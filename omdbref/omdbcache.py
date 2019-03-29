@@ -7,6 +7,7 @@ OMDB_CACHE_INDEX = "/var/run/omdbref/fetch.index"
 OMDB_CACHE_DIR = "/var/run/omdbref/fetch-cache"
 
 omdb_index = None
+omdb_ignore = None
 
 def init():
     if os.path.exists(OMDB_CACHE_DIR):
@@ -15,11 +16,13 @@ def init():
 
 def load():
     global omdb_index
+    global omdb_ignore
 
     if omdb_index:
         return
 
     omdb_index = {}
+    omdb_ignore = {}
     try:
         fp = open(OMDB_CACHE_INDEX)
     except:
@@ -35,7 +38,10 @@ def load():
             logging.warning("Invalid omdb cache index line: %s", line)
             continue
 
-        omdb_index[mname.strip()] = mid.strip()
+        if mid == 'X':
+            omdb_ignore[mname.strip()] = True
+        else:
+            omdb_index[mname.strip()] = mid.strip()
 
     fp.close()
 
@@ -96,6 +102,36 @@ def set(data, name):
     fp.close()
 
     omdb_index[mname] = mid
+
+def miss(name):
+    global omdb_ignore
+
+    if not name:
+        return
+
+    name = name.strip()
+    if name in omdb_ignore:
+        logging.debug("Ignore set '%s' skipped - already in ignore index", name)
+        return
+
+    try:
+        fp = open(OMDB_CACHE_INDEX, "a")
+    except Exception as e:
+        logging.error("Failed omdb ignore index update '%s': %s", name, e)
+        return
+
+    fp.write("%s=%s\n" % ('X', name,))
+    fp.close()
+
+    omdb_ignore[name] = True
+
+def ignored(name):
+    global omdb_ignore
+
+    if not name:
+        return False
+
+    return name in omdb_ignore
 
 def convert(data):
     if not data:

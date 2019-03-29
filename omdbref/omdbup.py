@@ -50,6 +50,10 @@ def receive(title, kind, season=None, episode=None):
         if data:
             return data
 
+        if omdbcache.ignored(name):
+            logging.info("OMDB fetch '%s' ignored", name)
+            return data
+
         if not key:
             logging.info("OMDB fetch '%s' skipped; KEY not set", name)
             return data
@@ -61,6 +65,7 @@ def receive(title, kind, season=None, episode=None):
             omdbcache.set(data, name)
             return data
 
+        omdbcache.miss(name)
         logging.warning("OMDB fetch '%s' responded: %s", name, data)
     except Exception as e:
         logging.warning("OMDB fetch '%s' failed: %s", name, e)
