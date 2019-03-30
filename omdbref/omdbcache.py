@@ -1,7 +1,7 @@
 
 import os
 import json
-from omdbref import omdblog
+import logging
 
 OMDB_CACHE_INDEX = "/var/run/omdbref/fetch.index"
 OMDB_CACHE_DIR = "/var/run/omdbref/fetch-cache"
@@ -28,11 +28,11 @@ def load():
     for line in fp:
         line = line.strip()
         if not line:
-            omdblog.write("Empty omdb cache index line")
+            logging.warning("Empty omdb cache index line")
             continue
         mid, _, mname = line.partition('=')
         if not mid:
-            omdblog.write("Invalid omdb cache index line: %s", line)
+            logging.warning("Invalid omdb cache index line: %s", line)
             continue
 
         omdb_index[mname.strip()] = mid.strip()
@@ -46,7 +46,7 @@ def get(name):
 
     name = name.strip()
     if name not in omdb_index:
-        omdblog.write("Cache get '%s' failed - not in index", name)
+        logging.debug("Cache get '%s' failed - not in index", name)
         return
 
     mid = omdb_index[name].strip()
@@ -55,7 +55,7 @@ def get(name):
     try:
         fp = open("%s/%s" % (OMDB_CACHE_DIR, mid,))
     except Exception as e:
-        omdblog.write("Failed omdb cache get '%s' (%s): %s", name, mid, e)
+        logging.error("Failed omdb cache get '%s' (%s): %s", name, mid, e)
         return
     data = json.load(fp)
     fp.close()
@@ -73,14 +73,14 @@ def set(data, name):
     mid = mid.strip()
     mname = mname.strip()
     if mname in omdb_index:
-        omdblog.write("Cache set '%s' skipped - already in index", mname)
+        logging.debug("Cache set '%s' skipped - already in index", mname)
         return
 
     init()
     try:
         fp = open("%s/%s" % (OMDB_CACHE_DIR, mid,), "w")
     except Exception as e:
-        omdblog.write("Failed omdb cache set '%s' (%s): %s", mname, mid, e)
+        logging.error("Failed omdb cache set '%s' (%s): %s", mname, mid, e)
         return
 
     json.dump(data, fp)
@@ -89,7 +89,7 @@ def set(data, name):
     try:
         fp = open(OMDB_CACHE_INDEX, "a")
     except Exception as e:
-        omdblog.write("Failed omdb cache index update '%s' (%s): %s", mname, mid, e)
+        logging.error("Failed omdb cache index update '%s' (%s): %s", mname, mid, e)
         return
 
     fp.write("%s=%s\n" % (mid, mname,))

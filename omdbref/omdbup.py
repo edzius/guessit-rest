@@ -1,14 +1,14 @@
 
 import os
+import logging
 import omdb
 from omdbref import omdbcache
-from omdbref import omdblog
 
 def read_key_config(file_name):
     try:
         fh = open(file_name, 'r')
     except Exception as e:
-        omdblog.write("Cannot read key file '%s': %s", file_name, e)
+        logging.debug("Cannot read key file '%s': %s", file_name, e)
         return ''
 
     key = fh.readline() or ''
@@ -19,7 +19,7 @@ def read_key_env(env_name):
     try:
         return os.environ[env_name]
     except Exception as e:
-        omdblog.write("Cannot get key env '%s': %s", env_name, e)
+        logging.debug("Cannot get key env '%s': %s", env_name, e)
         return ''
 
 omdb.set_default('apikey', read_key_env('OMDB_KEY') or read_key_config('~/.config/guessit/omdb-key') or read_key_config('/etc/guessit/omdb-key') or '')
@@ -46,13 +46,13 @@ def receive(title, kind, season=None, episode=None):
         if data:
             return data
 
-        omdblog.write("OMDB fetch '%s' new data", name)
+        logging.info("OMDB fetch '%s' new data", name)
         data = omdb.get(title=title,media_type=kind,season=season,episode=episode)
 
         if verify(data):
             omdbcache.set(data, name)
             return data
 
-        omdblog.write("OMDB fetch '%s' responded: %s", name, data)
+        logging.warning("OMDB fetch '%s' responded: %s", name, data)
     except Exception as e:
-        omdblog.write("OMDB fetch '%s' failed: %s", name, e)
+        logging.warning("OMDB fetch '%s' failed: %s", name, e)
