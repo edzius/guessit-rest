@@ -22,7 +22,10 @@ def read_key_env(env_name):
         logging.debug("Cannot get key env '%s': %s", env_name, e)
         return ''
 
-omdb.set_default('apikey', read_key_env('OMDB_KEY') or read_key_config('~/.config/guessit/omdb-key') or read_key_config('/etc/guessit/omdb-key') or '')
+key = read_key_env('OMDB_KEY') or read_key_config('~/.config/guessit/omdb-key') or read_key_config('/etc/guessit/omdb-key')
+if not key:
+    logging.error("No OMDB key configured")
+omdb.set_default('apikey', key or '')
 
 def verify(data):
     if not data:
@@ -44,6 +47,10 @@ def receive(title, kind, season=None, episode=None):
     try:
         data = omdbcache.get(name)
         if data:
+            return data
+
+        if not key:
+            logging.info("OMDB fetch '%s' skipped; KEY not set", name)
             return data
 
         logging.info("OMDB fetch '%s' new data", name)
