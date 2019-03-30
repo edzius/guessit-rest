@@ -41,6 +41,7 @@ def verify(data):
 
 def receive(title, kind, season=None, episode=None):
     name = ' '.join([str(title),
+                     str(kind) if kind else 'video',
                      str('S%s' % season) if season else '',
                      str('E%s' % episode) if episode else '']).strip()
 

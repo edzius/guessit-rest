@@ -42,14 +42,15 @@ class GuessItOmdb(Resource):
         parser.add_argument('title', action='store', required=True, help='Title to search', location=location)
         parser.add_argument('season', action='store', help='Season info', location=location)
         parser.add_argument('episode', action='store', help='Episode info', location=location)
+        parser.add_argument('type', action='store', help='Video type', location=location)
         args = parser.parse_args()
 
         if not args.season or not args.episode:
-            data = omdbref.receive(args.title, "movie")
+            data = omdbref.receive(args.title, args.type or "movie")
         else:
             data = omdbref.receive(args.title, "series")
             if data:
-                data['specific'] = omdbref.receive(args.title, None, args.season, args.episode)
+                data['specific'] = omdbref.receive(args.title, "episode", args.season, args.episode)
 
         return data
 
